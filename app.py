@@ -36,7 +36,17 @@ def apply_filter(image):
     image = image.convert("L")
     return image
 
+# function to use the stegano library to encode a msg into an image 
+def encrypt_img(image , msg ):
+    
+    from stegano import lsb 
+    lsb.hide(image , msg).save('./encryotedimage.png')
 
+# function to decode that msg
+def decrypt_img(image):
+    from stegano import lsb
+    return lsb.reveal(image) 
+    
 # a button that will contain the minting logic function
 if st.button("Transform Your image"):
     st.image(apply_filter(file), width=600)
