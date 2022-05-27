@@ -10,14 +10,15 @@ def hash_input(txt):
     sha.update(text)
     key = sha.digest()
     key = b64encode(key)
-    
     return key
 
+# used to encrypt plain text using a key (hashed key from the password)
 def AES_encrypt(plaintext, key):
     from cryptography.fernet import Fernet
     f = Fernet(key)
     return f.encrypt(plaintext)
 
+# used to decrypt cipher text using a key (hashed key from the password)
 def AES_decrypt(ciphertext, key):
     from cryptography.fernet import Fernet
     f = Fernet(key)
