@@ -32,7 +32,7 @@ contract = load_contract()
 
 # Side Bar
 st.sidebar.markdown(
-    "<h1 style='text-align: center; color: white; font-size:40px;'>Mint Your NFT </h1>", unsafe_allow_html=True)
+    "<h1 style='text-align: center; color: green; font-size:40px;'>Mint Your NFT </h1>", unsafe_allow_html=True)
 
 option = st.sidebar.selectbox("Select an Option from the Menu", options=[
     'Transform Image', 'Mint', 'Check encoded Message'])
@@ -45,6 +45,7 @@ if option == 'Transform Image':
     st.header('1. Transform Your Image and encode a secret message')
 
     # loading the image from the user
+
     file = st.file_uploader("Upload your image file to mint",
                             type=["jpg", "jpeg", "png"])
 
@@ -71,19 +72,35 @@ if option == 'Transform Image':
         lsb.hide(image, msg).save('./encryotedimage.png')
 
     # get the hidden input from the user and store in var
-    input_txt = st.text_input('Type Here')
-
-    # function for hashing the input to be saved into the image
+    input_txt = st.text_input('Enter a message to embed in the image')
+    password_txt = st.text_input(
+        'Enter a Password to encrypt the message', type='password')
+    
+    # function for hashing the password to be saved into the image
     def hash_input(txt):
         import hashlib
+        from base64 import b64encode
         sha = hashlib.sha256()
         text = txt.encode()
         sha.update(text)
-        return sha.hexdigest()
+        key = sha.digest()
+        key = b64encode(key)
+        
+        return key
+    
+    def AES_encrypt(plaintext, key):
+        from cryptography.fernet import Fernet
+        f = Fernet(key)
+        return f.encrypt(plaintext)
+    
+    def AES_decrypt(ciphertext, key):
+        from cryptography.fernet import Fernet
+        f = Fernet(key)
+        return f.decrypt(ciphertext)
 
     # action to imbed the msg into the image and ave it to the folder for pinata
-    if st.button('Enter a message to embed in the image'):
-        hide_msg(image=apply_filter(file), msg=hash_input(input_txt))
+    if st.button('Click to Embed'):
+        hide_msg(image=apply_filter(file), msg=has)
 
     # function to decode that msg
     def get_msg(image):
@@ -99,6 +116,7 @@ if option == 'Transform Image':
 elif option == 'Mint':
     st.header('2. NFT Minter')
     st.text('Your image is ready to be minted')
+
     image_to_mint = st.image('./encryotedimage.png')
     owner = st.text_input('Public ETH Address')
     image_name = st.text_input('Give Your Image a name for the blockchain')
@@ -107,7 +125,7 @@ elif option == 'Mint':
     # send image to IPFS and get the image uri
     def pin_image(image_name, image_file):
         # Pin the file to IPFS with Pinata
-        ipfs_file_hash = pin_file_to_ipfs(image_file.getvalue())
+        ipfs_file_hash = pin_file_to_ipfs(image_file)
 
         # Build a token metadata file for the artwork
         token_json = {
