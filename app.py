@@ -1,5 +1,8 @@
 # Importing the required libraries for the application
 
+# used to ensure proper byte size inputs for the Fernet encryption method
+from base64 import b64decode, b64encode
+from encryption import *
 from IpsfAccess import *  # access to the helper function for using ipfs
 import streamlit as st  # Streamlit to run our front end web app
 from web3 import Web3  # web3 library to interact with the blockchain
@@ -7,7 +10,6 @@ import os  # used to access the environment variables
 from pathlib import Path
 from dotenv import load_dotenv  # to load the dot env file
 load_dotenv()
-
 # initiate the connection to the blockchain
 w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
 
@@ -15,7 +17,6 @@ w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
 
 
 def load_contract():
-
     # Load the contract ABI
     with open(Path('./nft_abi.json')) as f:
         contract_abi = json.load(f)
@@ -29,6 +30,9 @@ def load_contract():
 # Load the contract
 contract = load_contract()
 
+#################
+# Side Bar Menu #
+#################
 
 # Side Bar
 st.sidebar.markdown(
@@ -40,6 +44,9 @@ option = st.sidebar.selectbox("Select an Option from the Menu", options=[
 st.sidebar.image(
     'https://cdn.pixabay.com/photo/2021/11/26/10/45/nft-6825614_960_720.png', width=300)
 
+######################################################################################
+# Loading the image from the user and encrypting a message into it using a password  #
+######################################################################################
 
 if option == 'Transform Image':
     st.header('1. Transform Your Image and encode a secret message')
@@ -53,7 +60,7 @@ if option == 'Transform Image':
     if file is not None:
         st.image(file, width=300)
 
-    # function to apply a filter on the image to change the color of the image
+    # function to apply a filter on the image to change the color of the image /
 
     def apply_filter(image):
         from PIL import Image, ImageFilter
@@ -63,56 +70,32 @@ if option == 'Transform Image':
 
     # a button that will contain the minting logic function
     if st.button("Transform Your image"):
-        st.image(apply_filter(file), width=300)
-
-    # function to use the stegano library to encode a msg into an image
-
-    def hide_msg(image, msg):
-        from stegano import lsb
-        lsb.hide(image, msg).save('./encryotedimage.png')
+        if file == None:
+            st.write('Please Select An Image ')
+        else:
+            st.image(apply_filter(file), width=300)
 
     # get the hidden input from the user and store in var
     input_txt = st.text_input('Enter a message to embed in the image')
     password_txt = st.text_input(
         'Enter a Password to encrypt the message', type='password')
-    
-    # function for hashing the password to be saved into the image
-    def hash_input(txt):
-        import hashlib
-        from base64 import b64encode
-        sha = hashlib.sha256()
-        text = txt.encode()
-        sha.update(text)
-        key = sha.digest()
-        key = b64encode(key)
-        
-        return key
-    
-    def AES_encrypt(plaintext, key):
-        from cryptography.fernet import Fernet
-        f = Fernet(key)
-        return f.encrypt(plaintext)
-    
-    def AES_decrypt(ciphertext, key):
-        from cryptography.fernet import Fernet
-        f = Fernet(key)
-        return f.decrypt(ciphertext)
 
     # action to imbed the msg into the image and ave it to the folder for pinata
     if st.button('Click to Embed'):
-        hide_msg(image=apply_filter(file), msg=has)
-
-    # function to decode that msg
-    def get_msg(image):
-        from stegano import lsb
-        return lsb.reveal(image)
+        hash = hash_input(password_txt)
+        hide_msg(image=apply_filter(file), msg=encrypt(
+            input_txt.encode(), hash))  # issue
 
     # Action button to decrypt from the saved image
     if st.button('click to decrypt'):
-        decrypt = get_msg(image='./encryotedimage.png')
-        st.write(f'The Hidden Message is : "{decrypt}"')
+        msg_from_image = get_msg(image='encryotedimage.png')
+        #decrypted = decrypt(msg_from_image, hash_input(password_txt))
+        st.write(f'The Hidden Message is : "{type(msg_from_image)}"')
+        #st.write(f'The Hidden Message is : "{decrypted}"')
 
-# Minting the image to the blockchain
+#######################################
+# Minting the image to the blockchain #
+#######################################
 elif option == 'Mint':
     st.header('2. NFT Minter')
     st.text('Your image is ready to be minted')
@@ -125,7 +108,7 @@ elif option == 'Mint':
     # send image to IPFS and get the image uri
     def pin_image(image_name, image_file):
         # Pin the file to IPFS with Pinata
-        ipfs_file_hash = pin_file_to_ipfs(image_file)
+        ipfs_file_hash = pin_file_to_ipfs(image_file)  # issue
 
         # Build a token metadata file for the artwork
         token_json = {
@@ -139,7 +122,7 @@ elif option == 'Mint':
 
         return json_ipfs_hash
 
-    ipfs_hash = pin_image(image_name, image_to_mint)
+    ipfs_hash = pin_image(image_name, image_to_mint)  # issue
 
     if st.button('Click to Mint'):
         tx_hash = contract.functions.mintImage(
