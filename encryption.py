@@ -44,7 +44,7 @@ def decrypt(ciphertext, key):
 
 # function to use the stegano library to encode a msg into an image
 def hide_msg(image, msg):
-    lsb.hide(image, msg).save('./encryotedimage.png')
+    lsb.hide(image, msg.decode()).save('./encryotedimage.png')
 
 
 # function to decode a msg within an image

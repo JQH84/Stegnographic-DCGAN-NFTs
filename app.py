@@ -89,9 +89,9 @@ if option == 'Transform Image':
     # Action button to decrypt from the saved image
     if st.button('click to decrypt'):
         msg_from_image = get_msg(image='encryotedimage.png')
-        #decrypted = decrypt(msg_from_image, hash_input(password_txt))
-        st.write(f'The Hidden Message is : "{type(msg_from_image)}"')
-        #st.write(f'The Hidden Message is : "{decrypted}"')
+        decrypted = decrypt(msg_from_image.encode(), hash_input(password_txt)).decode()
+        st.write(f'The Hidden Message is : {msg_from_image}')
+        st.write(f'The Hidden Message is : "{decrypted}"')
 
 #######################################
 # Minting the image to the blockchain #
