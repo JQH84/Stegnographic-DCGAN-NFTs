@@ -17,6 +17,7 @@ w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
 # function to connect to the NFT contract
 
 
+@st.cache(allow_output_mutation=True)
 def load_contract():
     # Load the contract ABI
     with open(Path('./nft_abi.json')) as f:
@@ -62,7 +63,7 @@ if option == 'Transform Image':
         st.image(file, width=300)
 
     # function to apply a filter on the image to change the color of the image /
-
+    @st.cache(allow_output_mutation=True)
     def apply_filter(image):
         image = Image.open(image)
         image = image.filter(ImageFilter.EMBOSS)
@@ -108,6 +109,7 @@ elif option == 'Mint':
     nickname_minter = st.text_input('Enter a Nickname for yourself')
 
     # send image to IPFS and get the image uri
+    @st.cache(allow_output_mutation=True)
     def pin_image(image_name, image_file):
         # Pin the file to IPFS with Pinata
         ipfs_file_hash = pin_file_to_ipfs(image_file)  # issue
@@ -127,7 +129,7 @@ elif option == 'Mint':
     if st.button('Click to Mint'):
         ipfs_hash = pin_image(image_name, image_file)
         image_uri = f"ipfs://{ipfs_hash}"
-        
+
         tx_hash = contract.functions.mintImage(
             owner,
             image_name,
