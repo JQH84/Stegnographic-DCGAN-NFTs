@@ -18,7 +18,7 @@ contract MintUrSelf is ERC721Full{
     struct userInfo {
         string name;
         string minter;
-        string secretMsg;
+        
     }
 
     mapping (uint256 => userInfo) public userMint;
@@ -29,7 +29,6 @@ contract MintUrSelf is ERC721Full{
             address owner,
             string memory name,
             string memory minter,
-            string secretMsg,
             string memory tokenURI
         ) public returns (uint256) {
             uint256 tokenId = totalSupply();
@@ -37,7 +36,7 @@ contract MintUrSelf is ERC721Full{
             _mint(owner, tokenId);
             _setTokenURI(tokenId, tokenURI);
 
-            userMint[tokenId] = userInfo(name, minter, secretMsg);
+            userMint[tokenId] = userInfo(name, minter);
 
             return tokenId;
         }
