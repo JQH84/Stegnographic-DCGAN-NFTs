@@ -8,6 +8,7 @@ import streamlit as st  # Streamlit to run our front end web app
 from web3 import Web3  # web3 library to interact with the blockchain
 import os  # used to access the environment variables
 from pathlib import Path
+from PIL import Image, ImageFilter  # image IO
 from dotenv import load_dotenv  # to load the dot env file
 load_dotenv()
 # initiate the connection to the blockchain
@@ -63,7 +64,6 @@ if option == 'Transform Image':
     # function to apply a filter on the image to change the color of the image /
 
     def apply_filter(image):
-        from PIL import Image, ImageFilter
         image = Image.open(image)
         image = image.filter(ImageFilter.EMBOSS)
         return image
@@ -87,20 +87,22 @@ if option == 'Transform Image':
             input_txt.encode(), hash))  # issue
 
     # Action button to decrypt from the saved image
-    if st.button('click to decrypt'):
-        msg_from_image = get_msg(image='encryotedimage.png')
-        decrypted = decrypt(msg_from_image.encode(), hash_input(password_txt)).decode()
-        st.write(f'The Hidden Message is : {msg_from_image}')
-        st.write(f'The Hidden Message is : "{decrypted}"')
+        # if st.button('click to decrypt'):
+        #msg_from_image = get_msg(image='encryotedimage.png')
+        # decrypted = decrypt(msg_from_image.encode(),
+        #                    hash_input(password_txt)).decode()
+        #st.write(f'The Hidden Message is : "{decrypted}"')
 
 #######################################
 # Minting the image to the blockchain #
 #######################################
 elif option == 'Mint':
     st.header('2. NFT Minter')
-    st.text('Your image is ready to be minted')
-
-    image_to_mint = st.image('./encryotedimage.png')
+    #st.text('Choose the modified image to mint')
+    #image_to_mint = st.image('./encryotedimage.png')
+    image_file = st.file_uploader(
+        "Upload the modified image to mint", type=["jpg", "jpeg", "png"])
+    #image_file = Image.open('./encryotedimage.png')
     owner = st.text_input('Public ETH Address')
     image_name = st.text_input('Give Your Image a name for the blockchain')
     nickname_minter = st.text_input('Enter a Nickname for yourself')
@@ -122,15 +124,16 @@ elif option == 'Mint':
 
         return json_ipfs_hash
 
-    ipfs_hash = pin_image(image_name, image_to_mint)  # issue
-
     if st.button('Click to Mint'):
+        ipfs_hash = pin_image(image_name, image_file)
+        image_uri = f"ipfs://{ipfs_hash}"
+        
         tx_hash = contract.functions.mintImage(
             owner,
             image_name,
             nickname_minter,
             'Secret MSG',
-            ipfs_hash
+            image_uri
 
         ).transact({'from': owner, 'gas': 1000000})
 
@@ -140,4 +143,4 @@ elif option == 'Mint':
         st.write(
             "You can view the pinned metadata file with the following IPFS Gateway Link")
         st.markdown(
-            f"[Artwork IPFS Gateway Link](https://ipfs.io/ipfs/{ipfs_hash})")
+            f"[Artwork IPFS Gateway Link](https://ipfs.io/ipfs/{image_uri})", unsafe_allow_html=True)
