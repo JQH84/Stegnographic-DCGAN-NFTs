@@ -8,6 +8,9 @@ import streamlit as st  # Streamlit to run our front end web app
 from web3 import Web3  # web3 library to interact with the blockchain
 import os  # used to access the environment variables
 from pathlib import Path
+import pandas as pd
+import requests as rq
+import json
 from PIL import Image, ImageFilter  # image IO
 from dotenv import load_dotenv  # to load the dot env file
 load_dotenv()
@@ -88,11 +91,11 @@ if option == 'Transform Image':
             input_txt.encode(), hash))  # issue
 
     # Action button to decrypt from the saved image
-        # if st.button('click to decrypt'):
-        #msg_from_image = get_msg(image='encryotedimage.png')
-        # decrypted = decrypt(msg_from_image.encode(),
-        #                    hash_input(password_txt)).decode()
-        #st.write(f'The Hidden Message is : "{decrypted}"')
+    if st.button('click to decrypt'):
+        msg_from_image = get_msg(image='encryotedimage.png')
+        decrypted = decrypt(msg_from_image.encode(),
+                            hash_input(password_txt)).decode()
+        st.write(f'The Hidden Message is : "{decrypted}"')
 
 #######################################
 # Minting the image to the blockchain #
@@ -101,10 +104,10 @@ elif option == 'Mint':
     st.header('2. NFT Minter')
     #st.text('Choose the modified image to mint')
     #image_to_mint = st.image('./encryotedimage.png')
-    image_file = st.file_uploader(
-        "Upload the modified image to mint", type=["jpg", "jpeg", "png"])
-    #image_file = Image.open('./encryotedimage.png')
-    owner = st.text_input('Public ETH Address')
+    #image_file = st.file_uploader("Upload the modified image to mint", type=["jpg", "jpeg", "png"])
+    with open(Path('./encryotedimage.png'), 'rb') as f:
+        image_file = f.read()
+        owner = st.text_input('Public ETH Address')
     image_name = st.text_input('Give Your Image a name for the blockchain')
     nickname_minter = st.text_input('Enter a Nickname for yourself')
 
@@ -124,17 +127,16 @@ elif option == 'Mint':
         # Pin the json to IPFS with Pinata
         json_ipfs_hash = pin_json_to_ipfs(json_data)
 
-        return json_ipfs_hash
+        return json_ipfs_hash, ipfs_file_hash
 
     if st.button('Click to Mint'):
-        ipfs_hash = pin_image(image_name, image_file)
+        ipfs_hash, file_hash = pin_image(image_name, image_file)
         image_uri = f"ipfs://{ipfs_hash}"
 
         tx_hash = contract.functions.mintImage(
             owner,
             image_name,
             nickname_minter,
-            'Secret MSG',
             image_uri
 
         ).transact({'from': owner, 'gas': 1000000})
@@ -145,4 +147,44 @@ elif option == 'Mint':
         st.write(
             "You can view the pinned metadata file with the following IPFS Gateway Link")
         st.markdown(
-            f"[Artwork IPFS Gateway Link](https://ipfs.io/ipfs/{image_uri})", unsafe_allow_html=True)
+            f"[Artwork IPFS Gateway Link](https://ipfs.io/ipfs/{file_hash})", unsafe_allow_html=True)
+        
+##################################################################################
+# Retrieve the image from the blockchain and decrypt the secret message within it #
+##################################################################################
+else:
+    st.header('3. Get NFT and Decrypt the message')
+    password = st.text_input('Enter your password to decrypt the message')
+    address = st.text_input('Enter your public ETH address to check for NFTs')
+    #if st.button('Click to Check'):
+    balanceOf = contract.functions.balanceOf(address).call()
+    NFT_item = st.selectbox('Select the NFT you want to retrieve', [i for i in range(balanceOf)])
+    NFT = contract.functions.userMint(NFT_item).call()
+    NFT_df = pd.DataFrame(NFT)
+            
+    uri_image = NFT[3].split('/')[2]
+    uri_image = f"https://gateway.pinata.cloud/ipfs/{uri_image}"
+    st.write(uri_image)
+    image_url = rq.get(uri_image).content
+    
+    # convert bytes to json
+    image_json = json.loads(image_url)
+    st.write(image_json)
+    image_url = f"https://gateway.pinata.cloud/ipfs/{image_json['image']}"
+    st.table(NFT_df)
+    # save image to local
+    with open(Path('./decryptedimage.png'), 'wb') as f:
+        f.write(rq.get(image_url).content)
+    image_to_decrypt = st.image(image_url, width=300)
+    
+        
+    if st.button('click to decrypt'):
+        msg_from_image = get_msg(image='decryptedimage.png')
+        decrypted = decrypt(msg_from_image.encode(), hash_input(password)).decode()
+        st.write(f'The Hidden Message is : "{decrypted}"')
+            
+       #decrypt_msg = decrypt(get_msg(image_to_decrypt).encode(), hash_input(password))
+        
+        #st.write(f'https://ipfs.io/{NFT[3]}')
+        #image = rq.get(f'https://ipfs.io/{NFT[3]}').content
+        #st.image(image, width=300)
