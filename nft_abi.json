@@ -203,11 +203,6 @@
 			},
 			{
 				"internalType": "string",
-				"name": "secretMsg",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
 				"name": "tokenURI",
 				"type": "string"
 			}
@@ -491,6 +486,11 @@
 		"name": "userMint",
 		"outputs": [
 			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
 				"internalType": "string",
 				"name": "name",
 				"type": "string"
@@ -502,7 +502,7 @@
 			},
 			{
 				"internalType": "string",
-				"name": "secretMsg",
+				"name": "tokenURI",
 				"type": "string"
 			}
 		],

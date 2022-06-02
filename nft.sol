@@ -16,14 +16,15 @@ contract MintUrSelf is ERC721Full{
     constructor() public ERC721Full("MintUrSelf" , "MNTME"){}
 
     struct userInfo {
+        address owner;
         string name;
         string minter;
-        
+        string tokenURI;
     }
 
     mapping (uint256 => userInfo) public userMint;
 
-    event storeMessage()
+    
 
     function mintImage(
             address owner,
@@ -36,18 +37,10 @@ contract MintUrSelf is ERC721Full{
             _mint(owner, tokenId);
             _setTokenURI(tokenId, tokenURI);
 
-            userMint[tokenId] = userInfo(name, minter);
+            userMint[tokenId] = userInfo(owner ,name, minter , tokenURI);
 
             return tokenId;
         }
 
-    /*
-    function decodeMsg (address minter , tokenId) public returns (string){
-
-
-
-
-    }
-    */
-
+   
 }
