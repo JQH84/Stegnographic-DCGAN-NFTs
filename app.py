@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 import requests as rq
 import json
+import tensorflow as tf
 from PIL import Image, ImageFilter  # image IO
 from dotenv import load_dotenv  # to load the dot env file
 load_dotenv()
@@ -154,7 +155,7 @@ elif option == 'Mint':
 ##################################################################################
 else:
     st.header('3. Get NFT and Decrypt the message')
-    password = st.text_input('Enter your password to decrypt the message')
+    password = st.text_input('Enter your password to decrypt the message' , type='password')
     address = st.text_input('Enter your public ETH address to check for NFTs')
     #if st.button('Click to Check'):
     balanceOf = contract.functions.balanceOf(address).call()
