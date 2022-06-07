@@ -19,3 +19,5 @@ Some technologies that will be used are:
 - Provide an easy way to mint it to the blockchain. ( using front end webapp )
 - Encrypting a user message within the image or a simple hashed version of the message.
 - 
+
+![GansGif](gans_training.gif)
