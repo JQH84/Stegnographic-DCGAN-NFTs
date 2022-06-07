@@ -1,4 +1,4 @@
-# Project 3 : NFTy Yourself 
+# Project 3 : Generate an NFT with Secret Messages 
 
 ## Contributors
 - John Gaffney
@@ -28,3 +28,6 @@ Model trained on RTX3070Ti, on full 10k image data set for 500 epochs using Tens
 
 ## Example of style transfer to GAN generated image
 ![StyleTransfer](Stylized1.png)
+
+## App Demo ! 
+![App Demo](./imgs/appDemo.gif)
