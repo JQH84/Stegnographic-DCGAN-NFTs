@@ -22,6 +22,8 @@ Some technologies that will be used are:
 
 ## Gif of GAN model generating images based on training data set
 
+Model trained on RTX3070Ti, on full 10k image data set for 500 epochs using Tensorflow
+
 ![GansGif](gans_training.gif)
 
 ## Example of style transfer to GAN generated image
