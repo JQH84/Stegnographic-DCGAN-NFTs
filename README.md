@@ -18,6 +18,11 @@ Some technologies that will be used are:
 - Generate 8-bit images based on the user input image. 
 - Provide an easy way to mint it to the blockchain. ( using front end webapp )
 - Encrypting a user message within the image or a simple hashed version of the message.
-- 
+
+
+## Gif of GAN model generating images based on training data set
 
 ![GansGif](gans_training.gif)
+
+## Example of style transfer to GAN generated image
+![StyleTransfer](Stylized1.png)
