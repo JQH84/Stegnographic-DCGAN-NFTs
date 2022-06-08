@@ -168,12 +168,13 @@ elif option == 'Mint it !':
 else:
     st.header('3. Get NFT and Decrypt the message')
 
-    address = st.text_input('Enter your public ETH address to check for NFTs')
+    address = st.text_input('Enter your public ETH address to check for NFTs' )
     try:
         balance = contract.functions.balanceOf(address).call()
     except:
         st.markdown("<h1 style='text-align: left; color: red; font-size:15px'>Please input a valid Ethereum address above </h1>", unsafe_allow_html=True)
         balance = 0
+        raise Exception('Please input a valid Ethereum address above')
     st.markdown(f" **{balance}** NFTs Found")
     
     if 'nft_list' not in st.session_state:
