@@ -4,6 +4,8 @@ import numpy as np
 
 
 
+
+
 def makePunk():
     model = tf.keras.models.load_model('./models/Cryptopunk_model_image.h5')
     model.compile(optimizer='Adam', loss=None)
