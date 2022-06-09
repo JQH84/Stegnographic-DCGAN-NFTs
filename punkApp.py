@@ -162,28 +162,32 @@ elif option == 'Mint it !':
         st.markdown(
             f"[Artwork IPFS Gateway Link](https://gateway.pinata.cloud/ipfs/{file_hash})", unsafe_allow_html=True)
 
+
 ##################################################################################
 # Retrieve the image from the blockchain and decrypt the secret message within it #
 ##################################################################################
 else:
     st.header('3. Get NFT and Decrypt the message')
 
-    address = st.text_input('Enter your public ETH address to check for NFTs' )
+    address = st.text_input('Enter your public ETH address to check for NFTs')
     try:
         balance = contract.functions.balanceOf(address).call()
     except:
-        st.markdown("<h1 style='text-align: left; color: red; font-size:15px'>Please input a valid Ethereum address above </h1>", unsafe_allow_html=True)
+        st.markdown(
+            "<h1 style='text-align: left; color: red; font-size:15px'>Please input a valid Ethereum address above </h1>", unsafe_allow_html=True)
         balance = 0
         raise Exception('Please input a valid Ethereum address above')
     st.markdown(f" **{balance}** NFTs Found")
-    
-    if 'nft_list' not in st.session_state:
-            st.session_state.nft_list = contract.functions.balanceOf(address).call()
 
-        #if st.button('Click to Check'):
+    if 'nft_list' not in st.session_state:
+        st.session_state.nft_list = contract.functions.balanceOf(
+            address).call()
+
+        # if st.button('Click to Check'):
     st.session_state.nft_list = contract.functions.balanceOf(address).call()
 
-    NFT_item = st.selectbox('Select the NFT you want to retrieve', [i for i in range(st.session_state.nft_list)])
+    NFT_item = st.selectbox('Select the NFT you want to retrieve', [
+                            i for i in range(st.session_state.nft_list)])
     NFT = contract.functions.userMint(NFT_item).call()
     st.write(NFT)
     #NFT_df = pd.DataFrame(NFT)
@@ -195,14 +199,15 @@ else:
     image_json = json.loads(image_url)
     st.write(image_json)
     image_url = f"https://gateway.pinata.cloud/ipfs/{image_json['image']}"
-    #st.table(NFT_df)
+    # st.table(NFT_df)
     # save image to local
     with open(Path('./decryptedimage.png'), 'wb') as f:
         f.write(rq.get(image_url).content)
     image_to_decrypt = st.image(image_url, width=300)
-        
-    password = st.text_input('Enter your password to decrypt the message', type='password')
-    
+
+    password = st.text_input(
+        'Enter your password to decrypt the message', type='password')
+
     if st.button('click to decrypt'):
         msg_from_image = get_msg(image='decryptedimage.png')
 
@@ -210,12 +215,9 @@ else:
                             hash_input(password)).decode()
 
         st.write(f'The Hidden Message is : "{decrypted}"')
-        
-        
 
+        #decrypt_msg = decrypt(get_msg(image_to_decrypt).encode(), hash_input(password))
 
-           #decrypt_msg = decrypt(get_msg(image_to_decrypt).encode(), hash_input(password))
-
-            # st.write(f'https://ipfs.io/{NFT[3]}')
-            #image = rq.get(f'https://ipfs.io/{NFT[3]}').content
-            #st.image(image, width=300)
+        # st.write(f'https://ipfs.io/{NFT[3]}')
+        #image = rq.get(f'https://ipfs.io/{NFT[3]}').content
+        #st.image(image, width=300)
